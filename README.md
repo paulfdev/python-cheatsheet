@@ -80,7 +80,6 @@ value  = <dict>.setdefault(key, default=None)   # Returns and writes default if 
 ```
 
 ```python
-<dict>.update(<dict>)
 <dict> = dict(<collection>)                     # Creates a dict from coll. of key-value pairs.
 <dict> = dict(zip(keys, values))                # Creates a dict from two collections.
 <dict> = dict.fromkeys(keys [, value])          # Creates a dict from collection of keys.
@@ -88,7 +87,9 @@ value  = <dict>.setdefault(key, default=None)   # Returns and writes default if 
 
 ```python
 value = <dict>.pop(key)                         # Removes item or raises KeyError.
-{k: v for k, v in <dict>.items() if k in keys}  # Filters dictionary by keys.
+<dict>.update(<dict>)                           # Adds items. Replaces ones with matching keys.
+[k for k, v in <dict>.items() if v == value]    # Returns list of keys that point to the value.
+{k: v for k, v in <dict>.items() if k in keys}  # Returns dictionary filtered by keys.
 ```
 
 ### Counter
@@ -193,7 +194,9 @@ Iterator
 <iter> = iter(<collection>)                 # `iter(<iter>)` returns unmodified iterator.
 <iter> = iter(<function>, to_exclusive)     # A sequence of return values until 'to_exclusive'.
 <el>   = next(<iter> [, default])           # Raises StopIteration or returns 'default' on end.
+<list> = list(<iter>)                       # Returns a list of iterator's remaining elements.
 ```
+
 
 ### Itertools
 ```python
@@ -213,8 +216,7 @@ from itertools import count, repeat, cycle, chain, islice
 
 ```python
 <iter> = islice(<collection>, to_exclusive)
-<iter> = islice(<collection>, from_inclusive, to_exclusive)
-<iter> = islice(<collection>, from_inclusive, to_exclusive, +step_size)
+<iter> = islice(<collection>, from_inclusive, to_exclusive [, +step_size])
 ```
 
 
@@ -268,13 +270,13 @@ True
 ```
 
 ```text
-+------------------+----------+------------+----------+
-|                  | Sequence | Collection | Iterable |
-+------------------+----------+------------+----------+
-| list, range, str |   yes    |    yes     |   yes    |
-| dict, set        |          |    yes     |   yes    |
-| iter             |          |            |   yes    |
-+------------------+----------+------------+----------+
++------------------+------------+------------+------------+
+|                  |  Sequence  | Collection |  Iterable  |
++------------------+------------+------------+------------+
+| list, range, str |    yes     |    yes     |    yes     |
+| dict, set        |            |    yes     |    yes     |
+| iter             |            |            |    yes     |
++------------------+------------+------------+------------+
 ```
 
 ```python
@@ -284,15 +286,15 @@ True
 ```
 
 ```text
-+--------------------+----------+----------+--------+---------+--------+
-|                    | Integral | Rational |  Real  | Complex | Number |
-+--------------------+----------+----------+--------+---------+--------+
-| int                |   yes    |   yes    |  yes   |   yes   |  yes   |
-| fractions.Fraction |          |   yes    |  yes   |   yes   |  yes   |
-| float              |          |          |  yes   |   yes   |  yes   |
-| complex            |          |          |        |   yes   |  yes   |
-| decimal.Decimal    |          |          |        |         |  yes   |
-+--------------------+----------+----------+--------+---------+--------+
++--------------------+----------+----------+----------+----------+----------+
+|                    | Integral | Rational |   Real   | Complex  |  Number  |
++--------------------+----------+----------+----------+----------+----------+
+| int                |   yes    |   yes    |   yes    |   yes    |   yes    |
+| fractions.Fraction |          |   yes    |   yes    |   yes    |   yes    |
+| float              |          |          |   yes    |   yes    |   yes    |
+| complex            |          |          |          |   yes    |   yes    |
+| decimal.Decimal    |          |          |          |          |   yes    |
++--------------------+----------+----------+----------+----------+----------+
 ```
 
 
@@ -320,28 +322,30 @@ String
 
 ```python
 <str>  = <str>.replace(old, new [, count])   # Replaces 'old' with 'new' at most 'count' times.
-<bool> = <str>.isnumeric()                   # True if str contains only numeric characters.
+<str>  = <str>.translate(<table>)            # Use `str.maketrans(<dict>)` to generate table.
 <list> = textwrap.wrap(<str>, width)         # Nicely breaks string into lines.
 ```
 
+```python
+<str>  = chr(<int>)                          # Converts int to unicode char.
+<int>  = ord(<str>)                          # Converts unicode char to int.
+```
 * **Also: `'lstrip()'`, `'rstrip()'`.**
 * **Also: `'lower()'`, `'upper()'`, `'capitalize()'` and `'title()'`.**
 
-### Char
-```python
-<str> = chr(<int>)                           # Converts int to unicode char.
-<int> = ord(<str>)                           # Converts unicode char to int.
+### Property Methods
+```text
++---------------+----------+----------+----------+----------+----------+
+|               | [ !#$%…] | [a-zA-Z] |  [¼½¾…]  |  [¹²³…]  |  [0-9]   |
++---------------+----------+----------+----------+----------+----------+
+| isprintable() |   yes    |   yes    |   yes    |   yes    |   yes    |
+| isalnum()     |          |   yes    |   yes    |   yes    |   yes    |
+| isnumeric()   |          |          |   yes    |   yes    |   yes    |
+| isdigit()     |          |          |          |   yes    |   yes    |
+| isdecimal()   |          |          |          |          |   yes    |
++---------------+----------+----------+----------+----------+----------+
 ```
-
-```python
->>> ord('0'), ord('9')
-(48, 57)
->>> ord('A'), ord('Z')
-(65, 90)
->>> ord('a'), ord('z')
-(97, 122)
-```
-
+* **Also: `'isspace()'` checks for `'[ \t\n\r…]'`.**
 
 Regex
 -----
@@ -412,7 +416,7 @@ Format
 ```
 
 ### Strings
-**`'!r'` calls object's repr() method, instead of str(), to get a string.**
+**`'!r'` calls object's [repr()](#class) method, instead of [str()](#class), to get a string.**
 ```python
 {'abcde'!r:<10}                                # "'abcde'   "
 {'abcde':.3}                                   # 'abc'
@@ -439,32 +443,32 @@ Format
 
 #### Comparison of float presentation types:
 ```text
-+----------------+----------------+---------------+----------------+-----------------+
-|                |    {<float>}   |  {<float>:f}  |   {<float>:e}  |   {<float>:%}   |
-+----------------+----------------+---------------+----------------+-----------------+
-|    0.000056789 |   '5.6789e-05' |    '0.000057' | '5.678900e-05' |     '0.005679%' |
-|    0.00056789  |   '0.00056789' |    '0.000568' | '5.678900e-04' |     '0.056789%' |
-|    0.0056789   |   '0.0056789'  |    '0.005679' | '5.678900e-03' |     '0.567890%' |
-|    0.056789    |   '0.056789'   |    '0.056789' | '5.678900e-02' |     '5.678900%' |
-|    0.56789     |   '0.56789'    |    '0.567890' | '5.678900e-01' |    '56.789000%' |
-|    5.6789      |   '5.6789'     |    '5.678900' | '5.678900e+00' |   '567.890000%' |
-|   56.789       |  '56.789'      |   '56.789000' | '5.678900e+01' |  '5678.900000%' |
-|  567.89        | '567.89'       |  '567.890000' | '5.678900e+02' | '56789.000000%' |
-+----------------+----------------+---------------+----------------+-----------------+
++---------------+-----------------+-----------------+-----------------+-----------------+
+|               |    {<float>}    |   {<float>:f}   |   {<float>:e}   |   {<float>:%}   |
++---------------+-----------------+-----------------+-----------------+-----------------+
+|   0.000056789 |    '5.6789e-05' |     '0.000057'  |  '5.678900e-05' |     '0.005679%' |
+|   0.00056789  |    '0.00056789' |     '0.000568'  |  '5.678900e-04' |     '0.056789%' |
+|   0.0056789   |    '0.0056789'  |     '0.005679'  |  '5.678900e-03' |     '0.567890%' |
+|   0.056789    |    '0.056789'   |     '0.056789'  |  '5.678900e-02' |     '5.678900%' |
+|   0.56789     |    '0.56789'    |     '0.567890'  |  '5.678900e-01' |    '56.789000%' |
+|   5.6789      |    '5.6789'     |     '5.678900'  |  '5.678900e+00' |   '567.890000%' |
+|  56.789       |   '56.789'      |    '56.789000'  |  '5.678900e+01' |  '5678.900000%' |
+| 567.89        |  '567.89'       |   '567.890000'  |  '5.678900e+02' | '56789.000000%' |
++---------------+-----------------+-----------------+-----------------+-----------------+
 ```
 ```text
-+----------------+----------------+---------------+----------------+-----------------+
-|                |  {<float>:.2}  | {<float>:.2f} |  {<float>:.2e} |  {<float>:.2%}  |
-+----------------+----------------+---------------+----------------+-----------------+
-|    0.000056789 |   '5.7e-05'    |      '0.00'   |   '5.68e-05'   |       '0.01%'   |
-|    0.00056789  |   '0.00057'    |      '0.00'   |   '5.68e-04'   |       '0.06%'   |
-|    0.0056789   |   '0.0057'     |      '0.01'   |   '5.68e-03'   |       '0.57%'   |
-|    0.056789    |   '0.057'      |      '0.06'   |   '5.68e-02'   |       '5.68%'   |
-|    0.56789     |   '0.57'       |      '0.57'   |   '5.68e-01'   |      '56.79%'   |
-|    5.6789      |   '5.7'        |      '5.68'   |   '5.68e+00'   |     '567.89%'   |
-|   56.789       |   '5.7e+01'    |     '56.79'   |   '5.68e+01'   |    '5678.90%'   |
-|  567.89        |   '5.7e+02'    |    '567.89'   |   '5.68e+02'   |   '56789.00%'   |
-+----------------+----------------+---------------+----------------+-----------------+
++---------------+-----------------+-----------------+-----------------+-----------------+
+|               |   {<float>:.2}  |  {<float>:.2f}  |  {<float>:.2e}  |  {<float>:.2%}  |
++---------------+-----------------+-----------------+-----------------+-----------------+
+|   0.000056789 |    '5.7e-05'    |       '0.00'    |    '5.68e-05'   |       '0.01%'   |
+|   0.00056789  |    '0.00057'    |       '0.00'    |    '5.68e-04'   |       '0.06%'   |
+|   0.0056789   |    '0.0057'     |       '0.01'    |    '5.68e-03'   |       '0.57%'   |
+|   0.056789    |    '0.057'      |       '0.06'    |    '5.68e-02'   |       '5.68%'   |
+|   0.56789     |    '0.57'       |       '0.57'    |    '5.68e-01'   |      '56.79%'   |
+|   5.6789      |    '5.7'        |       '5.68'    |    '5.68e+00'   |     '567.89%'   |
+|  56.789       |    '5.7e+01'    |      '56.79'    |    '5.68e+01'   |    '5678.90%'   |
+| 567.89        |    '5.7e+02'    |     '567.89'    |    '5.68e+02'   |   '56789.00%'   |
++---------------+-----------------+-----------------+-----------------+-----------------+
 ```
 
 ### Ints
@@ -487,7 +491,7 @@ Numbers
 ```
 * **`'int(<str>)'` and `'float(<str>)'` raise ValueError on malformed strings.**
 * **Decimal numbers can be represented exactly, unlike floats where `'1.1 + 2.2 != 3.3'`.**
-* **Their precision can be adjusted with `'decimal.getcontext().prec = <int>'`.**
+* **Precision of decimal operations is set with: `'decimal.getcontext().prec = <int>'`.**
 
 ### Basic Functions
 ```python
@@ -788,12 +792,12 @@ from functools import reduce
 
 ### If - Else
 ```python
-<expression_if_true> if <condition> else <expression_if_false>
+<obj> = <expression_if_true> if <condition> else <expression_if_false>
 ```
 
 ```python
->>> [a if a else 'zero' for a in (0, 1, 0, 3)]
-['zero', 1, 'zero', 3]
+>>> [a if a else 'zero' for a in (0, 1, 2, 3)]
+['zero', 1, 2, 3]
 ```
 
 ### Namedtuple, Enum, Dataclass
@@ -850,8 +854,8 @@ from functools import partial
 >>> multiply_by_3(10)
 30
 ```
-* **Partial is also useful in cases when a function needs to be passed as an argument, because it enables us to set its arguments beforehand.**
-* **A few examples being `'defaultdict(<function>)'`, `'iter(<function>, to_exclusive)'` and dataclass's `'field(default_factory=<function>)'`.**
+* **Partial is also useful in cases when function needs to be passed as an argument, because it enables us to set its arguments beforehand.**
+* **A few examples being: `'defaultdict(<function>)'`, `'iter(<function>, to_exclusive)'` and dataclass's `'field(default_factory=<function>)'`.**
 
 ### Nonlocal
 **If variable is being assigned to anywhere in the scope, it is regarded as a local variable, unless it is declared as a 'global' or a 'nonlocal'.**
@@ -900,7 +904,7 @@ def debug(func):
 def add(x, y):
     return x + y
 ```
-* **Wraps is a helper decorator that copies the metadata of a passed function (func) to the function it is wrapping (out).**
+* **Wraps is a helper decorator that copies the metadata of the passed function (func) to the function it is wrapping (out).**
 * **Without it `'add.__name__'` would return `'out'`.**
 
 ### LRU Cache
@@ -914,7 +918,7 @@ def fib(n):
     return n if n < 2 else fib(n-2) + fib(n-1)
 ```
 
-* **Recursion depth is limited to 1000 by default. To increase it use `'sys.setrecursionlimit(<depth>)'`.**
+* **In CPython recursion depth is limited to 1000 by default. To increase it use `'sys.setrecursionlimit(<depth>)'`.**
 
 ### Parametrized Decorator
 **A decorator that accepts arguments and returns a normal decorator that accepts a function.**
@@ -1008,6 +1012,7 @@ class C(A, B): pass
 ```
 
 ### Property
+**Pythonic way of implementing getters and setters.**
 ```python
 class MyClass:
     @property
@@ -1268,19 +1273,19 @@ class MyAbcSequence(collections.abc.Sequence):
         return self.a[i]
 ```
 
-#### Table of required and available special methods:
+#### Table of required and automatically available special methods:
 ```text
-+------------+----------+------------+----------+--------------+
-|            | Iterable | Collection | Sequence | abc.Sequence |
-+------------+----------+------------+----------+--------------+
-| iter()     |   REQ    |    REQ     |   yes    |     yes      |
-| contains() |   yes    |    yes     |   yes    |     yes      |
-| len()      |          |    REQ     |   REQ    |     REQ      |
-| getitem()  |          |            |   REQ    |     REQ      |
-| reversed() |          |            |   yes    |     yes      |
-| index()    |          |            |          |     yes      |
-| count()    |          |            |          |     yes      |
-+------------+----------+------------+----------+--------------+
++------------+------------+------------+------------+--------------+
+|            |  Iterable  | Collection |  Sequence  | abc.Sequence |
++------------+------------+------------+------------+--------------+
+| iter()     |    REQ     |    REQ     |    yes     |     yes      |
+| contains() |    yes     |    yes     |    yes     |     yes      |
+| len()      |            |    REQ     |    REQ     |     REQ      |
+| getitem()  |            |            |    REQ     |     REQ      |
+| reversed() |            |            |    yes     |     yes      |
+| index()    |            |            |            |     yes      |
+| count()    |            |            |            |     yes      |
++------------+------------+------------+------------+--------------+
 ```
 * **Other ABCs that generate missing methods are: MutableSequence, Set, MutableSet, Mapping and MutableMapping.**
 * **Names of their required methods are stored in `'<abc>.__abstractmethods__'`.**
@@ -1295,19 +1300,14 @@ class <enum_name>(Enum):
     <member_name_1> = <value_1>
     <member_name_2> = <value_2_a>, <value_2_b>
     <member_name_3> = auto()
-
-    @classmethod
-    def get_member_names(cls):
-        return [a.name for a in cls.__members__.values()]
 ```
 * **If there are no numeric values before auto(), it returns 1.**
-* **Otherwise it returns an increment of last numeric value.**
-
+* **Otherwise it returns an increment of the last numeric value.**
 
 ```python
-<member> = <enum>.<member_name>                # Returns a member.
-<member> = <enum>['<member_name>']             # Returns a member or raises KeyError.
-<member> = <enum>(<value>)                     # Returns a member or raises ValueError.
+<member> = <enum>.<member_name>                 # Returns a member.
+<member> = <enum>['<member_name>']              # Returns a member or raises KeyError.
+<member> = <enum>(<value>)                      # Returns a member or raises ValueError.
 name     = <member>.name
 value    = <member>.value
 ```
@@ -1317,6 +1317,13 @@ list_of_members = list(<enum>)
 member_names    = [a.name for a in <enum>]
 member_values   = [a.value for a in <enum>]
 random_member   = random.choice(list(<enum>))
+```
+
+```python
+def get_next_member(member):
+    members = list(member.__class__)
+    index   = (members.index(member) + 1) % len(members)
+    return members[index]
 ```
 
 ### Inline
@@ -1377,13 +1384,6 @@ raise <exception>(<el>)
 raise <exception>(<el>, ...)
 ```
 
-#### Useful built-in exceptions:
-```python
-raise ValueError('Argument is of right type but inappropriate value!')
-raise TypeError('Argument is of wrong type!')
-raise RuntimeError('None of above!')
-```
-
 #### Re-raising caught exception:
 ```python
 except <exception>:
@@ -1391,11 +1391,18 @@ except <exception>:
     raise
 ```
 
+#### Useful built-in exceptions:
+```python
+raise ValueError('Argument is of right type but inappropriate value!')
+raise TypeError('Argument is of wrong type!')
+raise RuntimeError('None of above!')
+```
+
 ### Common Built-in Exceptions
 ```text
 BaseException
  +-- SystemExit                   # Raised by the sys.exit() function.
- +-- KeyboardInterrupt            # Raised when the user hits the interrupt key.
+ +-- KeyboardInterrupt            # Raised when the user hits the interrupt key (ctrl-c).
  +-- Exception                    # User-defined exceptions should be derived from this class.
       +-- StopIteration           # Raised by next() when run on an empty iterator.
       +-- ArithmeticError         # Base class for arithmetic errors.
@@ -1417,14 +1424,14 @@ BaseException
 
 #### Collections and their exceptions:
 ```text
-+-----------+------------+----------+----------+
-|           |    list    |   dict   |   set    |
-+-----------+------------+----------+----------+
-| getitem() | IndexError | KeyError |          |
-| pop()     | IndexError | KeyError | KeyError |
-| remove()  | ValueError |          | KeyError |
-| index()   | ValueError |          |          |
-+-----------+------------+----------+----------+
++-----------+------------+------------+------------+
+|           |    list    |    dict    |    set     |
++-----------+------------+------------+------------+
+| getitem() | IndexError |  KeyError  |            |
+| pop()     | IndexError |  KeyError  |  KeyError  |
+| remove()  | ValueError |            |  KeyError  |
+| index()   | ValueError |            |            |
++-----------+------------+------------+------------+
 ```
 
 ### User-defined Exceptions
@@ -1498,7 +1505,7 @@ Open
 ```python
 <file> = open('<path>', mode='r', encoding=None, newline=None)
 ```
-* **`'encoding=None'` means default encoding is used, which is platform dependent. Best practice is to use `'encoding="utf-8"'` whenever possible.**
+* **`'encoding=None'` means that the default encoding is used, which is platform dependent. Best practice is to use `'encoding="utf-8"'` whenever possible.**
 * **`'newline=None'` means all different end of line combinations are converted to '\n' on read, while on write all '\n' characters are converted to system's default line separator.**
 * **`'newline=""'` means no conversions take place, but input is still broken into chunks by readline() and readlines() on either '\n', '\r' or '\r\n'.**
 
@@ -1536,7 +1543,7 @@ Open
 
 ```python
 <file>.write(<str/bytes>)           # Writes a string or bytes object.
-<file>.writelines(<coll.>)          # Writes a coll. of strings or bytes objects.
+<file>.writelines(<collection>)     # Writes a coll. of strings or bytes objects.
 <file>.flush()                      # Flushes write buffer.
 ```
 * **Methods do not add or strip trailing newlines, even writelines().**
@@ -1559,8 +1566,12 @@ def write_to_file(filename, text):
 Path
 ----
 ```python
-from os import path, listdir
+from os import getcwd, path, listdir
 from glob import glob
+```
+
+```python
+<str>  = getcwd()                   # Returns the current working directory.
 ```
 
 ```python
@@ -1627,6 +1638,11 @@ os.mkdir(<path>, mode=0o777)        # Creates a directory.
 ```
 
 ```python
+shutil.copy(from, to)               # Copies the file.
+shutil.copytree(from, to)           # Copies the entire directory tree.
+```
+
+```python
 os.rename(from, to)                 # Renames the file or directory.
 os.replace(from, to)                # Same, but overwrites 'to' if it exists.
 ```
@@ -1638,12 +1654,6 @@ shutil.rmtree(<path>)               # Deletes the entire directory tree.
 ```
 
 ```python
-shutil.copy(from, to)               # Copies the file.
-shutil.copytree(from, to)           # Copies the entire directory tree.
-```
-
-```python
-<str>  = os.getcwd()                # Returns the current working directory.
 <iter> = os.scandir(path='.')       # Returns os.DirEntry objects located at path.
 ```
 
@@ -1766,17 +1776,17 @@ import csv
 
 ### Dialects
 ```text
-+------------------+-----------+-----------+--------------+
-|                  |   excel   | excel_tab | unix_dialect |
-+------------------+-----------+-----------+--------------+
-| delimiter        |      ','  |     '\t'  |       ','    |
-| quotechar        |      '"'  |      '"'  |       '"'    |
-| doublequote      |     True  |     True  |      True    |
-| skipinitialspace |    False  |    False  |     False    |
-| lineterminator   |   '\r\n'  |   '\r\n'  |      '\n'    |
-| quoting          |        0  |        0  |         1    |
-| escapechar       |     None  |     None  |      None    |
-+------------------+-----------+-----------+--------------+
++------------------+--------------+--------------+--------------+
+|                  |     excel    |   excel_tab  | unix_dialect |
++------------------+--------------+--------------+--------------+
+| delimiter        |        ','   |       '\t'   |       ','    |
+| quotechar        |        '"'   |        '"'   |       '"'    |
+| doublequote      |       True   |       True   |      True    |
+| skipinitialspace |      False   |      False   |     False    |
+| lineterminator   |     '\r\n'   |     '\r\n'   |      '\n'    |
+| quoting          |          0   |          0   |         1    |
+| escapechar       |       None   |       None   |      None    |
++------------------+--------------+--------------+--------------+
 ```
 
 ### Read Rows from CSV File
@@ -1926,7 +1936,7 @@ b'\x00\x01\x00\x02\x00\x00\x00\x03'
 #### For standard sizes start format string with:
 * **`'='` - native byte order**
 * **`'<'` - little-endian**
-* **`'>'` - big-endian**
+* **`'>'` - big-endian (also `'!'`)**
 
 #### Integer types. Use capital letter for unsigned type. Standard sizes are in brackets:
 * **`'x'` - pad byte**
@@ -1949,7 +1959,7 @@ Array
 from array import array
 <array> = array('<typecode>', <collection>)    # Array from coll. of numbers.
 <array> = array('<typecode>', <bytes>)         # Array from bytes object.
-<bytes> = <array>.tobytes()
+<bytes> = bytes(<array>)                       # Or: <array>.tobytes()
 ```
 
 
@@ -1960,21 +1970,19 @@ Memory View
 * **Order and number of elements can be changed with slicing.**
 
 ```python
-<mview> = memoryview(<bytes/bytearray/array>)
-<num>   = <mview>[<index>]                     # Returns an int or a float.
+<mview> = memoryview(<bytes/bytearray/array>)  # Immutable if bytes, else mutable.
+<real>  = <mview>[<index>]                     # Returns an int or a float.
 <mview> = <mview>[<slice>]                     # Mview with rearranged elements.
 <mview> = <mview>.cast('<typecode>')           # Casts memoryview to the new format.
 <mview>.release()                              # Releases the object's memory buffer.
 ```
 
+### Decode
 ```python
 <bin_file>.write(<mview>)                      # Appends mview to the binary file.
 <bytes> = bytes(<mview>)                       # Creates a new bytes object.
 <bytes> = <bytes>.join(<coll_of_mviews>)       # Joins mviews using bytes object as sep.
 <list>  = list(<mview>)                        # Returns list of ints or floats.
-```
-
-```python
 <str>   = str(<mview>, 'utf-8')
 <int>   = int.from_bytes(<mview>, byteorder='big|little', signed=False)
 '<hex>' = <mview>.hex()
@@ -2035,12 +2043,13 @@ with lock:
 ### Thread Pool Executor
 ```python
 from concurrent.futures import ThreadPoolExecutor
-with ThreadPoolExecutor(max_workers=None) as executor:
+with ThreadPoolExecutor(max_workers=None) as executor:         # None == `n_cores * 5`.
     <iter>   = executor.map(lambda x: x + 1, range(3))         # (1, 2, 3)
     <iter>   = executor.map(lambda x, y: x + y, 'abc', '123')  # ('a1', 'b2', 'c3')
     <Future> = executor.submit(<function> [, <arg_1>, ...])
 ```
 
+#### Future
 ```python
 <bool> = <Future>.done()             # Checks if thread has finished executing.
 <obj>  = <Future>.result()           # Waits for thread to finish and returns result.
@@ -2117,7 +2126,7 @@ Metaprograming
 **Type is the root class. If only passed an object it returns its type (class). Otherwise it creates a new class.**
 
 ```python
-<class> = type(<class_name>, <parents_tuple>, <attributes_dict>)
+<class> = type('<class_name>', <parents_tuple>, <attributes_dict>)
 ```
 
 ```python
@@ -2165,15 +2174,15 @@ type(MyMetaClass) == type         # MyMetaClass is an instance of type.
 ```
 
 ```text
-+---------+-------------+
-| Classes | Metaclasses |
-+---------+-------------|
-| MyClass > MyMetaClass |
-|         |     v       |
-|  object ---> type <+  |
-|         |    ^ +---+  |
-|   str -------+        |
-+---------+-------------+
++-------------+-------------+
+|   Classes   | Metaclasses |
++-------------+-------------|
+|   MyClass --> MyMetaClass |
+|             |     v       |
+|    object -----> type <+  |
+|             |    ^ +---+  |
+|     str ---------+        |
++-------------+-------------+
 ```
 
 ### Inheritance Diagram
@@ -2183,15 +2192,15 @@ MyMetaClass.__base__ == type      # MyMetaClass is a subclass of type.
 ```
 
 ```text
-+---------+-------------+
-| Classes | Metaclasses |
-+---------+-------------|
-| MyClass | MyMetaClass |
-|    v    |     v       |
-|  object <--- type     |
-|    ^    |             |
-|   str   |             |
-+---------+-------------+
++-------------+-------------+
+|   Classes   | Metaclasses |
++-------------+-------------|
+|   MyClass   | MyMetaClass |
+|      v      |     v       |
+|    object <----- type     |
+|      ^      |             |
+|     str     |             |
++-------------+-------------+
 ```
 
 
